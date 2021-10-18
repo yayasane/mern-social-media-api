@@ -5,6 +5,7 @@ const helmet = require('helmet')
 const morgan = require('morgan')
 const usersRoute = require('./routes/users.routes')
 const authRoute = require('./routes/auth.routes')
+const postRoutes = require('./routes/post.routes')
 
 const app = express()
 
@@ -29,6 +30,7 @@ app.use(morgan('common'))
 
 app.use('/api/users', usersRoute)
 app.use('/api/auth', authRoute)
+app.use('/api/posts', postRoutes)
 
 app.listen(8800, () => {
   console.log('Backend server in running')
