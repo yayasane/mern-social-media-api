@@ -6,10 +6,19 @@ const morgan = require('morgan')
 const usersRoute = require('./routes/users.routes')
 const authRoute = require('./routes/auth.routes')
 const postRoutes = require('./routes/post.routes')
+const cors = require('cors')
+dotenv.config()
 
 const app = express()
-
-dotenv.config()
+const corsOptions = {
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+  allowedHeaders: ['sessionId', 'Content-Type'],
+  exposedHeaders: ['sessionId'],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+}
+app.use(cors(corsOptions))
 
 mongoose.connect(
   process.env.MONGO_URL,
