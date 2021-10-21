@@ -10,6 +10,7 @@ router.post('/', async (req, res) => {
     const savedPost = await newPost.save()
     res.status(200).json(savedPost)
   } catch (err) {
+    console.log(err)
     res.status(500).json(err)
   }
 })
