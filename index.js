@@ -6,6 +6,8 @@ const morgan = require('morgan')
 const usersRoute = require('./routes/users.routes')
 const authRoute = require('./routes/auth.routes')
 const postRoutes = require('./routes/post.routes')
+const conversationRoutes = require('./routes/conversation.routes')
+const messageRoutes = require('./routes/message.routes')
 const cors = require('cors')
 const multer = require('multer')
 const path = require('path')
@@ -79,6 +81,8 @@ app.post('/api/upload', upload.single('file'), (req, resp) => {
 app.use('/api/users', usersRoute)
 app.use('/api/auth', authRoute)
 app.use('/api/posts', postRoutes)
+app.use('/api/conversations', conversationRoutes)
+app.use('/api/messages', messageRoutes)
 
 app.listen(8800, () => {
   console.log('Backend server in running')
