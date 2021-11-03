@@ -84,6 +84,6 @@ app.use('/api/posts', postRoutes)
 app.use('/api/conversations', conversationRoutes)
 app.use('/api/messages', messageRoutes)
 
-app.listen(8800, () => {
+app.listen(process.env.PORT || 8800, () => {
   console.log('Backend server in running')
 })
