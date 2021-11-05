@@ -1,27 +1,59 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const dotenv = require('dotenv')
-const helmet = require('helmet')
-const morgan = require('morgan')
-const usersRoute = require('./routes/users.routes')
-const authRoute = require('./routes/auth.routes')
-const postRoutes = require('./routes/post.routes')
-const conversationRoutes = require('./routes/conversation.routes')
-const messageRoutes = require('./routes/message.routes')
-const cors = require('cors')
-const multer = require('multer')
-const path = require('path')
-dotenv.config()
+import express from 'express'
+import { Server } from 'socket.io'
+import { createServer } from 'http'
+import mongoose from 'mongoose'
+import { config } from 'dotenv'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import usersRoute from './routes/users.routes.js'
+import authRoute from './routes/auth.routes.js'
+import postRoutes from './routes/post.routes.js'
+import conversationRoutes from './routes/conversation.routes.js'
+import messageRoutes from './routes/message.routes.js'
+import cors from 'cors'
+import multer, { diskStorage } from 'multer'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import SocketUsers from './SocketUsers.js'
+
+//we need to change up how __dirname is used for ES6 purposes
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+config()
 
 const app = express()
 
 // ajout de socket.io
-const server = require('http').createServer(app)
-const io = (module.exports.io = require('socket.io')(server, {
+const server = createServer(app)
+const io = new Server(server, {
   cors: {
     origin: '*',
   },
-}))
+})
+
+io.on('connection', (socket) => {
+  //when connect
+  console.log('a user connected')
+
+  //take userId and socketId from user
+  socket.on('addUser', (userId) => {
+    SocketUsers.addUser(userId, socket.id)
+    io.emit('getUsers', SocketUsers.users)
+  })
+
+  //send and get message
+  // socket.on('sendMessage', ({ userId, receiverId, text }) => {
+  //   const user = SocketUsers.getUser(receiverId)
+  //   user && io.to(user.socketId).emit('getMessage', { senderId: userId, text })
+  // })
+
+  //When disconnect
+  socket.on('disconnect', () => {
+    console.log('a user disconnect')
+    SocketUsers.removeUser(socket.id)
+    io.emit('getUsers', SocketUsers.users)
+  })
+})
+export { io }
 
 const corsOptions = {
   origin: '*',
@@ -65,7 +97,7 @@ app.use(express.json())
 app.use(helmet())
 app.use(morgan('common'))
 
-const storage = multer.diskStorage({
+const storage = diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/images')
   },
@@ -98,40 +130,3 @@ server.listen(process.env.PORT || 8800, (res, err) => {
   console.log('Backend server in running')
 })
 // const SocketManager = require('./SocketManager')
-let users = []
-
-const addUser = (userId, socketId) => {
-  !users.some((user) => user.userId === userId) &&
-    users.push({ userId, socketId })
-}
-
-const removeUser = (socketId) => {
-  users = users.filter((u) => u.socketId !== socketId)
-}
-
-const getUser = (userId) => {
-  return users.find((user) => user.userId === userId)
-}
-io.on('connection', (socket) => {
-  //when connect
-  console.log('a user connected')
-
-  //take userId and socketId from user
-  socket.on('addUser', (userId) => {
-    addUser(userId, socket.id)
-    io.emit('getUsers', users)
-  })
-
-  //send and get message
-  socket.on('sendMessage', ({ userId, receiverId, text }) => {
-    const user = getUser(receiverId)
-    user && io.to(user.socketId).emit('getMessage', { senderId: userId, text })
-  })
-
-  //When disconnect
-  socket.on('disconnect', () => {
-    console.log('a user disconnect')
-    removeUser(socket.id)
-    io.emit('getUsers', users)
-  })
-})

@@ -1,5 +1,6 @@
-const router = require('express').Router()
-const Conversation = require('../models/conversation.model')
+import { Router } from 'express'
+import Conversation from '../models/conversation.model.js'
+const router = Router()
 
 //new conv
 
@@ -42,4 +43,4 @@ router.get('/find/:firstUserId/:secondUserId', async (req, res) => {
   }
 })
 
-module.exports = router
+export default router

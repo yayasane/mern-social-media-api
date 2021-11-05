@@ -1,6 +1,9 @@
-const router = require('express').Router()
-const User = require('../models/user.model')
-const bcrypt = require('bcrypt')
+import { Router } from 'express'
+import User from '../models/user.model.js'
+import bcrypt from 'bcrypt'
+
+const router = Router()
+
 //update user
 router.put('/:id', async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
@@ -118,4 +121,4 @@ router.put('/:id/unfollow', async (req, res) => {
   }
 })
 
-module.exports = router
+export default router

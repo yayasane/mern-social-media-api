@@ -1,6 +1,8 @@
-const router = require('express').Router()
-const User = require('../models/user.model')
-const bcrypt = require('bcrypt')
+import { Router } from 'express'
+import User from '../models/user.model.js'
+import bcrypt from 'bcrypt'
+
+const router = Router()
 
 //REGISTER
 router.post('/register', async (req, res) => {
@@ -20,6 +22,7 @@ router.post('/register', async (req, res) => {
     const user = await newUser.save()
     res.status(200).json(user)
   } catch (err) {
+    console.log(err)
     res.status(500).json(err)
   }
 })
@@ -39,4 +42,4 @@ router.post('/login', async (req, res) => {
   }
 })
 
-module.exports = router
+export default router
